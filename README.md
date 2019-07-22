@@ -1,4 +1,4 @@
-# Radix Deployment Velero Plugin
+# Radix Velero Plugin
 
 This plugin is intended to assist velero in backup/restores, so that we are able to recover the state as it were in the original cluster. Information from this plugin ends up as annotations on the restored object. Currently the supported annotations are:
 
