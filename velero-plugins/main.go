@@ -24,7 +24,7 @@ import (
 
 func main() {
 	veleroplugin.NewServer().
-		RegisterRestoreItemAction("equinor.com/restore-radix-rd-plugin", newDeploymentRestorePlugin).
+		RegisterRestoreItemAction("equinor.com/restore-radix-plugin", newDeploymentRestorePlugin).
 		Serve()
 }
 
