@@ -24,7 +24,7 @@ IMAGE ?= $(DOCKER_REGISTRY)/$(PLUGIN_NAME):$(VERSION)
 BIN ?= $(wildcard velero-*)
 
 # This repo's root import path (under GOPATH).
-PKG := github.com/ingeknudsen/$(PLUGIN_NAME)
+PKG := github.com/equinor/$(PLUGIN_NAME)
 
 BUILD_IMAGE ?= golang:1.12-stretch
 
