@@ -17,8 +17,8 @@ limitations under the License.
 package main
 
 import (
+	"github.com/equinor/radix-velero-plugin/velero-plugins/deployment"
 	veleroplugin "github.com/heptio/velero/pkg/plugin/framework"
-	"github.com/ingeknudsen/radix-rd-velero-plugin/velero-plugins/deployment"
 	"github.com/sirupsen/logrus"
 )
 
