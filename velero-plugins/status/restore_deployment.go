@@ -27,23 +27,23 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
-// RestorePlugin is a restore item action plugin for Velero
-type RestorePlugin struct {
+// RestoreDeploymentPlugin is a restore item action plugin for Velero
+type RestoreDeploymentPlugin struct {
 	Log logrus.FieldLogger
 }
 
 // AppliesTo returns information about which resources this action should be invoked for.
 // A RestoreItemAction's Execute function will only be invoked on items that match the returned
 // selector. A zero-valued ResourceSelector matches all resources.g
-func (p *RestorePlugin) AppliesTo() (velero.ResourceSelector, error) {
+func (p *RestoreDeploymentPlugin) AppliesTo() (velero.ResourceSelector, error) {
 	return velero.ResourceSelector{
-		IncludedResources: []string{"radixdeployments.radix.equinor.com", "radixjobs.radix.equinor.com"},
+		IncludedResources: []string{"radixdeployments.radix.equinor.com"},
 	}, nil
 }
 
 // Execute allows the RestorePlugin to perform arbitrary logic with the item being restored,
 // in this case, setting a custom annotation on the item being restored.
-func (p *RestorePlugin) Execute(input *velero.RestoreItemActionExecuteInput) (*velero.RestoreItemActionExecuteOutput, error) {
+func (p *RestoreDeploymentPlugin) Execute(input *velero.RestoreItemActionExecuteInput) (*velero.RestoreItemActionExecuteOutput, error) {
 	p.Log.Info("Radix Deployment RestorePlugin!")
 
 	metadata, err := meta.Accessor(input.Item)
