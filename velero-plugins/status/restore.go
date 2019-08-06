@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package deployment
+package status
 
 import (
 	"encoding/json"
@@ -37,7 +37,7 @@ type RestorePlugin struct {
 // selector. A zero-valued ResourceSelector matches all resources.g
 func (p *RestorePlugin) AppliesTo() (velero.ResourceSelector, error) {
 	return velero.ResourceSelector{
-		IncludedResources: []string{"radixdeployments.radix.equinor.com"},
+		IncludedResources: []string{"radixdeployments.radix.equinor.com", "radixjobs.radix.equinor.com"},
 	}, nil
 }
 
