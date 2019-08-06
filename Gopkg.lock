@@ -3,14 +3,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a0f862b36e1fa6de4f67f2ea756b556e7d90bf4ac705cec20f267168a95fab71"
+  digest = "1:f250b65c76f3008dc89c9a469e251099552290d0e02b8905207f59b4d9f31c99"
   name = "github.com/equinor/radix-operator"
   packages = [
     "pkg/apis/radix",
     "pkg/apis/radix/v1",
   ]
   pruneopts = ""
-  revision = "8535113a359020721d09b8bd3bb37bf68aeb7064"
+  revision = "f2708f095d93c128808768b718b1b15fe5fcdc7f"
 
 [[projects]]
   digest = "1:fd53b471edb4c28c7d297f617f4da0d33402755f58d6301e7ca1197ef0a90937"
@@ -109,14 +109,6 @@
   pruneopts = ""
   revision = "6d0b8010fcc857872e42fc6c931227569016843c"
   version = "v1.0.0"
-
-[[projects]]
-  digest = "1:bcc46a0fbd9e933087bef394871256b5c60269575bb661935874729c65bbbf60"
-  name = "github.com/mitchellh/mapstructure"
-  packages = ["."]
-  pruneopts = ""
-  revision = "3536a929edddb9a5b34bd6861dc4a9647cb459fe"
-  version = "v1.1.2"
 
 [[projects]]
   digest = "1:94e9081cc450d2cdf4e6886fc2c06c07272f86477df2d74ee5931951fa3d2577"
@@ -321,9 +313,10 @@
     "github.com/equinor/radix-operator/pkg/apis/radix/v1",
     "github.com/heptio/velero/pkg/plugin/framework",
     "github.com/heptio/velero/pkg/plugin/velero",
-    "github.com/mitchellh/mapstructure",
+    "github.com/pkg/errors",
     "github.com/sirupsen/logrus",
     "k8s.io/apimachinery/pkg/api/meta",
+    "k8s.io/apimachinery/pkg/runtime",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
