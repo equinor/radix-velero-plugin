@@ -17,17 +17,22 @@ limitations under the License.
 package main
 
 import (
-	"github.com/equinor/radix-velero-plugin/velero-plugins/deployment"
+	"github.com/equinor/radix-velero-plugin/velero-plugins/status"
 	veleroplugin "github.com/heptio/velero/pkg/plugin/framework"
 	"github.com/sirupsen/logrus"
 )
 
 func main() {
 	veleroplugin.NewServer().
-		RegisterRestoreItemAction("equinor.com/restore-radix-plugin", newDeploymentRestorePlugin).
+		RegisterRestoreItemAction("equinor.com/restore-deployment-plugin", newDeploymentRestorePlugin).
+		RegisterRestoreItemAction("equinor.com/restore-job-plugin", newJobRestorePlugin).
 		Serve()
 }
 
 func newDeploymentRestorePlugin(logger logrus.FieldLogger) (interface{}, error) {
-	return &deployment.RestorePlugin{Log: logger}, nil
+	return &status.RestoreDeploymentPlugin{Log: logger}, nil
+}
+
+func newJobRestorePlugin(logger logrus.FieldLogger) (interface{}, error) {
+	return &status.RestoreJobPlugin{Log: logger}, nil
 }
