@@ -3,14 +3,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f250b65c76f3008dc89c9a469e251099552290d0e02b8905207f59b4d9f31c99"
+  digest = "1:3da17d8d4190a276c57955b8f1fcf5e50ceef733efab6f1e120fdb238959861e"
   name = "github.com/equinor/radix-operator"
   packages = [
     "pkg/apis/radix",
     "pkg/apis/radix/v1",
   ]
   pruneopts = ""
-  revision = "f2708f095d93c128808768b718b1b15fe5fcdc7f"
+  revision = "f8e5fead1619e3aed1891896fc9cc9089c28639b"
 
 [[projects]]
   digest = "1:fd53b471edb4c28c7d297f617f4da0d33402755f58d6301e7ca1197ef0a90937"

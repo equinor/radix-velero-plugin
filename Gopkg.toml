@@ -27,3 +27,7 @@
 [[constraint]]
   name = "github.com/heptio/velero"
   branch = "master"
+
+[[constraint]]
+  name = "github.com/equinor/radix-operator"
+  branch = "master"
