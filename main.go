@@ -18,8 +18,8 @@ package main
 
 import (
 	"github.com/equinor/radix-velero-plugin/velero-plugins/status"
-	veleroplugin "github.com/heptio/velero/pkg/plugin/framework"
 	"github.com/sirupsen/logrus"
+	veleroplugin "github.com/vmware-tanzu/velero/pkg/plugin/framework"
 )
 
 func main() {

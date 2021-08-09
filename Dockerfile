@@ -1,4 +1,4 @@
-# Copyright 2017 the Heptio Ark contributors.
+# Copyright 2017, 2019, 2020 the Velero contributors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,8 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM debian:stretch-slim
+FROM golang:1.16-buster AS build
+ENV GOPROXY=https://proxy.golang.org
+WORKDIR /go/src/github.com/equinor/radix-velero-plugin
+COPY . .
+RUN CGO_ENABLED=0 go build -o /go/bin/radix-velero-plugin .
+
+
+FROM alpine:latest
 RUN mkdir /plugins
-ADD velero-* /plugins/
+COPY --from=build /go/bin/radix-velero-plugin /plugins/
 USER nobody:nobody
-ENTRYPOINT ["/bin/bash", "-c", "cp /plugins/* /target/."]
+ENTRYPOINT ["/bin/sh", "-c", "cp /plugins/* /target/."]
