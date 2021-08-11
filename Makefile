@@ -19,9 +19,8 @@ BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 PKG := github.com/equinor/$(PLUGIN_NAME)
 BIN := radix-velero-plugin
 
-CONTAINER_REPO ?= radix$(ENVIRONMENT)
-DOCKER_REGISTRY	?= $(CONTAINER_REPO).azurecr.io
-IMAGE ?= $(DOCKER_REGISTRY)/$(PLUGIN_NAME)
+REGISTRY ?= radix$(ENVIRONMENT).azurecr.io
+IMAGE ?= $(REGISTRY)/radix-velero-plugin
 
 GOOS   ?= $(shell go env GOOS)
 GOARCH ?= $(shell go env GOARCH)
@@ -29,7 +28,12 @@ GOARCH ?= $(shell go env GOARCH)
 # local builds the binary using 'go build' in the local environment.
 .PHONY: local
 local: build-dirs
-	CGO_ENABLED=0 go build -v -o _output/bin/$(GOOS)/$(GOARCH) .
+	GOOS=$(GOOS) \
+	GOARCH=$(GOARCH) \
+	PKG=$(PKG) \
+	BIN=$(BIN) \
+	OUTPUT_DIR=$$(pwd)/_output/bin/$(GOOS)/$(GOARCH) \
+	./hack/build.sh
 
 # test runs unit tests using 'go test' in the local environment.
 .PHONY: test
@@ -43,24 +47,28 @@ ci: verify-modules local test
 # container builds a Docker image containing the binary.
 .PHONY: container
 container:
-	docker build -t $(IMAGE):$(BRANCH)-$(VERSION) .
+	docker build -t $(IMAGE):${BRANCH}-$(VERSION) .
 
 # push pushes the Docker image to its registry.
 .PHONY: push
 push:
-	@docker push $(IMAGE):$(BRANCH)-$(VERSION)
+	@docker push $(IMAGE):${BRANCH}-$(VERSION)
+# ifeq ($(TAG_LATEST), true)
+# 	docker tag $(IMAGE):$(VERSION) $(IMAGE):latest
+# 	docker push $(IMAGE):latest
+# endif
 
 # modules updates Go module files
-# .PHONY: modules
-# modules:
-# 	go mod tidy
+.PHONY: modules
+modules:
+	go mod tidy
 
 # verify-modules ensures Go module files are up to date
-# .PHONY: verify-modules
-# verify-modules: modules
-# 	@if !(git diff --quiet HEAD -- go.sum go.mod); then \
-# 		echo "go module files are out of date, please commit the changes to go.mod and go.sum"; exit 1; \
-# 	fi
+.PHONY: verify-modules
+verify-modules: modules
+	@if !(git diff --quiet HEAD -- go.sum go.mod); then \
+		echo "go module files are out of date, please commit the changes to go.mod and go.sum"; exit 1; \
+	fi
 
 # build-dirs creates the necessary directories for a build in the local environment.
 .PHONY: build-dirs

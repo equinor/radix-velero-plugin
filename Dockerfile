@@ -16,7 +16,7 @@ FROM golang:1.16-buster AS build
 ENV GOPROXY=https://proxy.golang.org
 WORKDIR /go/src/github.com/equinor/radix-velero-plugin
 COPY . .
-RUN CGO_ENABLED=0 go build -o /go/bin/radix-velero-plugin .
+RUN CGO_ENABLED=0 go build -o /go/bin/radix-velero-plugin ./radix-velero-plugin
 
 
 FROM alpine:latest
