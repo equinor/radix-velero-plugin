@@ -29,8 +29,17 @@ jobs:
           login-server: radixdev.azurecr.io
           username: ${{ secrets.DEV_REGISTRY_USERNAME }}
           password: ${{ secrets.DEV_REGISTRY_PASSWORD }}
-      - name: Puh to radixdev
+      - name: Push to radixdev
         env:
           ENVIRONMENT: dev
+        run: make container push
+      - uses: azure/docker-login@v1
+        with:
+          login-server: radixprod.azurecr.io
+          username: ${{ secrets.PROD_REGISTRY_USERNAME }}
+          password: ${{ secrets.PROD_REGISTRY_PASSWORD }}
+      - name: Push to radixprod
+        env:
+          ENVIRONMENT: prod
         run: make container push
       
