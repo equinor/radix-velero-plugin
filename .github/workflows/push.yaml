@@ -15,16 +15,14 @@ jobs:
         with:
           go-version: 1.16
         id: go
-
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
-
       - name: Build
         run: make local
-
       - name: Test
         run: make test
-      - uses: azure/docker-login@v1
+      - name: Login to radixdev
+        uses: azure/docker-login@v1
         with:
           login-server: radixdev.azurecr.io
           username: ${{ secrets.DEV_REGISTRY_USERNAME }}
@@ -33,7 +31,8 @@ jobs:
         env:
           ENVIRONMENT: dev
         run: make container push
-      - uses: azure/docker-login@v1
+      - name: Login to radixprod
+        uses: azure/docker-login@v1
         with:
           login-server: radixprod.azurecr.io
           username: ${{ secrets.PROD_REGISTRY_USERNAME }}
