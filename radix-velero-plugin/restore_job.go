@@ -14,15 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package status
+package main
 
 import (
 	"encoding/json"
 
-	v1 "github.com/equinor/radix-operator/pkg/apis/radix/v1"
-	"github.com/heptio/velero/pkg/plugin/velero"
+	radixv1 "github.com/equinor/radix-operator/pkg/apis/radix/v1"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"github.com/vmware-tanzu/velero/pkg/plugin/velero"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
 )
@@ -56,7 +56,7 @@ func (p *RestoreJobPlugin) Execute(input *velero.RestoreItemActionExecuteInput) 
 		annotations = make(map[string]string)
 	}
 
-	var rj v1.RadixJob
+	var rj radixv1.RadixJob
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(input.ItemFromBackup.UnstructuredContent(), &rj); err != nil {
 		return nil, errors.Wrap(err, "unable to convert unstructured item to Radix Deployment")
 	}

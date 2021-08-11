@@ -1,4 +1,4 @@
-# Copyright 2017 the Heptio Ark contributors.
+# Copyright 2017, 2019, 2020 the Velero contributors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,38 +11,22 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 ENVIRONMENT ?= dev
 PLUGIN_NAME ?= radix-velero-plugin
-VERSION ?= latest
+VERSION  ?=latest 
 
-CONTAINER_REPO ?= radix$(ENVIRONMENT)
-DOCKER_REGISTRY	?= $(CONTAINER_REPO).azurecr.io
-IMAGE ?= $(DOCKER_REGISTRY)/$(PLUGIN_NAME):$(VERSION)
-
-# The binary to build (just the basename).
-BIN ?= $(wildcard velero-*)
-
-# This repo's root import path (under GOPATH).
+BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 PKG := github.com/equinor/$(PLUGIN_NAME)
+BIN := radix-velero-plugin
 
-BUILD_IMAGE ?= golang:1.12-stretch
+REGISTRY ?= radix$(ENVIRONMENT).azurecr.io
+IMAGE ?= $(REGISTRY)/radix-velero-plugin
 
-# Which architecture to build - see $(ALL_ARCH) for options.
-# if the 'local' rule is being run, detect the ARCH from 'go env'
-# if it wasn't specified by the caller.
-local : ARCH ?= $(shell go env GOOS)-$(shell go env GOARCH)
-ARCH ?= linux-amd64
+GOOS   ?= $(shell go env GOOS)
+GOARCH ?= $(shell go env GOARCH)
 
-platform_temp = $(subst -, ,$(ARCH))
-GOOS = $(word 1, $(platform_temp))
-GOARCH = $(word 2, $(platform_temp))
-
-all: $(addprefix build-, $(BIN))
-
-build-%:
-	$(MAKE) --no-print-directory BIN=$* build
-
+# local builds the binary using 'go build' in the local environment.
+.PHONY: local
 local: build-dirs
 	GOOS=$(GOOS) \
 	GOARCH=$(GOARCH) \
@@ -51,55 +35,48 @@ local: build-dirs
 	OUTPUT_DIR=$$(pwd)/_output/bin/$(GOOS)/$(GOARCH) \
 	./hack/build.sh
 
-build: _output/bin/$(GOOS)/$(GOARCH)/$(BIN)
+# test runs unit tests using 'go test' in the local environment.
+.PHONY: test
+test:
+	CGO_ENABLED=0 go test -v -timeout 60s ./...
 
-_output/bin/$(GOOS)/$(GOARCH)/$(BIN): build-dirs
-	@echo "building: $@"
-	$(MAKE) shell CMD="-c '\
-		GOOS=$(GOOS) \
-		GOARCH=$(GOARCH) \
-		PKG=$(PKG) \
-		BIN=$(BIN) \
-		OUTPUT_DIR=/output/$(GOOS)/$(GOARCH) \
-		./hack/build.sh'"
+# ci is a convenience target for CI builds.
+.PHONY: ci
+ci: verify-modules local test
 
-TTY := $(shell tty -s && echo "-t")
+# container builds a Docker image containing the binary.
+.PHONY: container
+container:
+	docker build -t $(IMAGE):${BRANCH}-$(VERSION) .
 
-shell: build-dirs 
-	@echo "running docker: $@"
-	@docker run \
-		-e GOFLAGS \
-		-i $(TTY) \
-		--rm \
-		-u $$(id -u):$$(id -g) \
-		-v $$(pwd)/.go/pkg:/go/pkg \
-		-v $$(pwd)/.go/src:/go/src \
-		-v $$(pwd)/.go/std:/go/std \
-		-v $$(pwd):/go/src/$(PKG) \
-		-v $$(pwd)/.go/std/$(GOOS)_$(GOARCH):/usr/local/go/pkg/$(GOOS)_$(GOARCH)_static \
-		-v "$$(pwd)/.go/go-build:/.cache/go-build:delegated" \
-		-e CGO_ENABLED=0 \
-		-w /go/src/$(PKG) \
-		$(BUILD_IMAGE) \
-		go build -installsuffix "static" -i -v -o _output/bin/$(GOOS)/$(GOARCH)/$(BIN) ./$(BIN)
+# push pushes the Docker image to its registry.
+.PHONY: push
+push:
+	@docker push $(IMAGE):${BRANCH}-$(VERSION)
+# ifeq ($(TAG_LATEST), true)
+# 	docker tag $(IMAGE):$(VERSION) $(IMAGE):latest
+# 	docker push $(IMAGE):latest
+# endif
 
+# modules updates Go module files
+.PHONY: modules
+modules:
+	go mod tidy
+
+# verify-modules ensures Go module files are up to date
+.PHONY: verify-modules
+verify-modules: modules
+	@if !(git diff --quiet HEAD -- go.sum go.mod); then \
+		echo "go module files are out of date, please commit the changes to go.mod and go.sum"; exit 1; \
+	fi
+
+# build-dirs creates the necessary directories for a build in the local environment.
+.PHONY: build-dirs
 build-dirs:
 	@mkdir -p _output/bin/$(GOOS)/$(GOARCH)
-	@mkdir -p .go/src/$(PKG) .go/pkg .go/bin .go/std/$(GOOS)/$(GOARCH) .go/go-build
 
-container: all
-	cp Dockerfile _output/bin/$(GOOS)/$(GOARCH)/Dockerfile
-	docker build -t $(IMAGE) -f _output/bin/$(GOOS)/$(GOARCH)/Dockerfile _output/bin/$(GOOS)/$(GOARCH)
-
-all-ci: $(addprefix ci-, $(BIN))
-
-ci-%:
-	$(MAKE) --no-print-directory BIN=$* ci
-
-ci:
-	mkdir -p _output
-	CGO_ENABLED=0 go build -v -o _output/bin/$(GOOS)/$(GOARCH)/$(BIN) ./$(BIN)
-
+# clean removes build artifacts from the local environment.
+.PHONY: clean
 clean:
 	@echo "cleaning"
-	rm -rf .go _output
+	rm -rf _output
