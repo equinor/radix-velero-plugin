@@ -4,7 +4,6 @@ on:
     branches:
       - master
       - release
-      - 111170-update-to-go-modules
 jobs:
   build:
     name: Build-push-radix-velero-plugin
