@@ -22,5 +22,5 @@ RUN CGO_ENABLED=0 go build -o /go/bin/radix-velero-plugin ./radix-velero-plugin
 FROM alpine:latest
 RUN mkdir /plugins
 COPY --from=build /go/bin/radix-velero-plugin /plugins/
-USER nobody:nobody
+USER 65534
 ENTRYPOINT ["/bin/sh", "-c", "cp /plugins/* /target/."]
