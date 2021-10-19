@@ -31,19 +31,43 @@ func main() {
 	}
 	veleroplugin.NewServer().
 		RegisterRestoreItemAction("equinor.com/restore-application-plugin", func(logger logrus.FieldLogger) (interface{}, error) {
-			return &RestoreApplicationPlugin{
+			return &RestoreRadixApplicationPlugin{
 				Log:      logger,
 				kubeUtil: kubeUtil,
 			}, nil
 		}).
 		RegisterRestoreItemAction("equinor.com/restore-deployment-plugin", func(logger logrus.FieldLogger) (interface{}, error) {
-			return &RestoreDeploymentPlugin{
+			return &RestoreRadixDeploymentPlugin{
 				Log:      logger,
 				kubeUtil: kubeUtil,
 			}, nil
 		}).
 		RegisterRestoreItemAction("equinor.com/restore-job-plugin", func(logger logrus.FieldLogger) (interface{}, error) {
-			return &RestoreJobPlugin{
+			return &RestoreRadixJobPlugin{
+				Log:      logger,
+				kubeUtil: kubeUtil,
+			}, nil
+		}).
+		RegisterRestoreItemAction("equinor.com/restore-alert-plugin", func(logger logrus.FieldLogger) (interface{}, error) {
+			return &RestoreAlertPlugin{
+				Log:      logger,
+				kubeUtil: kubeUtil,
+			}, nil
+		}).
+		RegisterRestoreItemAction("equinor.com/restore-environment-plugin", func(logger logrus.FieldLogger) (interface{}, error) {
+			return &RestoreRadixEnvironmentPlugin{
+				Log:      logger,
+				kubeUtil: kubeUtil,
+			}, nil
+		}).
+		RegisterRestoreItemAction("equinor.com/restore-secret-plugin", func(logger logrus.FieldLogger) (interface{}, error) {
+			return &RestoreRadixAppSecretPlugin{
+				Log:      logger,
+				kubeUtil: kubeUtil,
+			}, nil
+		}).
+		RegisterRestoreItemAction("equinor.com/restore-configmap-plugin", func(logger logrus.FieldLogger) (interface{}, error) {
+			return &RestoreRadixAppConfigMapPlugin{
 				Log:      logger,
 				kubeUtil: kubeUtil,
 			}, nil

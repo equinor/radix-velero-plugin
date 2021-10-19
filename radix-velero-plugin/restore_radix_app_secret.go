@@ -18,17 +18,17 @@ package main
 
 import (
 	kube "github.com/equinor/radix-operator/pkg/apis/kube"
-	radixv1 "github.com/equinor/radix-operator/pkg/apis/radix/v1"
 	"github.com/equinor/radix-velero-plugin/models"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/vmware-tanzu/velero/pkg/plugin/velero"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
-// RestoreApplicationPlugin is a restore item action plugin for Velero
-type RestoreApplicationPlugin struct {
+// RestoreRadixAppSecretPlugin is a restore item action plugin for Velero
+type RestoreRadixAppSecretPlugin struct {
 	Log      logrus.FieldLogger
 	kubeUtil *models.Kube
 }
@@ -36,16 +36,16 @@ type RestoreApplicationPlugin struct {
 // AppliesTo returns information about which resources this action should be invoked for.
 // A RestoreItemAction's Execute function will only be invoked on items that match the returned
 // selector. A zero-valued ResourceSelector matches all resources.g
-func (p *RestoreApplicationPlugin) AppliesTo() (velero.ResourceSelector, error) {
+func (p *RestoreRadixAppSecretPlugin) AppliesTo() (velero.ResourceSelector, error) {
 	return velero.ResourceSelector{
-		IncludedResources: []string{"radixapplications.radix.equinor.com"},
+		IncludedResources: []string{"secrets"},
 	}, nil
 }
 
 // Execute allows the RestorePlugin to perform arbitrary logic with the item being restored,
 // in this case, setting a custom annotation on the item being restored.
-func (p *RestoreApplicationPlugin) Execute(input *velero.RestoreItemActionExecuteInput) (*velero.RestoreItemActionExecuteOutput, error) {
-	p.Log.Info("Radix Application RestorePlugin!")
+func (p *RestoreRadixAppSecretPlugin) Execute(input *velero.RestoreItemActionExecuteInput) (*velero.RestoreItemActionExecuteOutput, error) {
+	p.Log.Info("Radix RadixAppSecret RestorePlugin!")
 
 	metadata, err := meta.Accessor(input.Item)
 	if err != nil {
@@ -57,22 +57,26 @@ func (p *RestoreApplicationPlugin) Execute(input *velero.RestoreItemActionExecut
 		annotations = make(map[string]string)
 	}
 
-	var ra radixv1.RadixApplication
-	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(input.ItemFromBackup.UnstructuredContent(), &ra); err != nil {
-		return nil, errors.Wrap(err, "unable to convert unstructured item to Radix Application")
+	var secret corev1.Secret
+	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(input.ItemFromBackup.UnstructuredContent(), &secret); err != nil {
+		return nil, errors.Wrap(err, "unable to convert unstructured item to Secret for RadixApp")
 	}
 
-	radixAppName := ra.Labels[kube.RadixAppLabel]
+	radixAppName := secret.Labels[kube.RadixAppLabel]
+	if radixAppName != "" {
+		return velero.NewRestoreItemActionExecuteOutput(input.Item), nil
+	}
+
 	rrExists, err := p.kubeUtil.ExistsRadixRegistration(radixAppName)
 	if err != nil {
 		return &velero.RestoreItemActionExecuteOutput{}, err
 	}
-	if !rrExists {
-		p.Log.Infof("RadixRegistration %s does not exists - skip restoring RadixApplication", radixAppName)
-		return &velero.RestoreItemActionExecuteOutput{
-			SkipRestore: true,
-		}, nil
+	if rrExists {
+		return velero.NewRestoreItemActionExecuteOutput(input.Item), nil
 	}
 
-	return velero.NewRestoreItemActionExecuteOutput(input.Item), nil
+	p.Log.Infof("RadixRegistration %s does not exists - skip restoring Secret for RadixApp", radixAppName)
+	return &velero.RestoreItemActionExecuteOutput{
+		SkipRestore: true,
+	}, nil
 }
