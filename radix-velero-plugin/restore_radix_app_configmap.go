@@ -63,7 +63,7 @@ func (p *RestoreRadixAppConfigMapPlugin) Execute(input *velero.RestoreItemAction
 	}
 
 	radixAppName := configMap.Labels[kube.RadixAppLabel]
-	if radixAppName != "" {
+	if radixAppName == "" {
 		return velero.NewRestoreItemActionExecuteOutput(input.Item), nil
 	}
 

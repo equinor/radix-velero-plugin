@@ -63,7 +63,7 @@ func (p *RestoreRadixAppSecretPlugin) Execute(input *velero.RestoreItemActionExe
 	}
 
 	radixAppName := secret.Labels[kube.RadixAppLabel]
-	if radixAppName != "" {
+	if radixAppName == "" {
 		return velero.NewRestoreItemActionExecuteOutput(input.Item), nil
 	}
 
