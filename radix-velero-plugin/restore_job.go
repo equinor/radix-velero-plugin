@@ -18,6 +18,7 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/equinor/radix-velero-plugin/models"
 
 	radixv1 "github.com/equinor/radix-operator/pkg/apis/radix/v1"
 	"github.com/pkg/errors"
@@ -29,7 +30,8 @@ import (
 
 // RestoreJobPlugin is a restore item action plugin for Velero
 type RestoreJobPlugin struct {
-	Log logrus.FieldLogger
+	Log      logrus.FieldLogger
+	kubeUtil *models.Kube
 }
 
 // AppliesTo returns information about which resources this action should be invoked for.

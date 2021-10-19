@@ -17,7 +17,6 @@ limitations under the License.
 package main
 
 import (
-	"encoding/json"
 	kube "github.com/equinor/radix-operator/pkg/apis/kube"
 	radixv1 "github.com/equinor/radix-operator/pkg/apis/radix/v1"
 	"github.com/equinor/radix-velero-plugin/models"
@@ -28,8 +27,8 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
-// RestoreDeploymentPlugin is a restore item action plugin for Velero
-type RestoreDeploymentPlugin struct {
+// RestoreApplicationPlugin is a restore item action plugin for Velero
+type RestoreApplicationPlugin struct {
 	Log      logrus.FieldLogger
 	kubeUtil *models.Kube
 }
@@ -37,16 +36,16 @@ type RestoreDeploymentPlugin struct {
 // AppliesTo returns information about which resources this action should be invoked for.
 // A RestoreItemAction's Execute function will only be invoked on items that match the returned
 // selector. A zero-valued ResourceSelector matches all resources.g
-func (p *RestoreDeploymentPlugin) AppliesTo() (velero.ResourceSelector, error) {
+func (p *RestoreApplicationPlugin) AppliesTo() (velero.ResourceSelector, error) {
 	return velero.ResourceSelector{
-		IncludedResources: []string{"radixdeployments.radix.equinor.com"},
+		IncludedResources: []string{"radixapplications.radix.equinor.com"},
 	}, nil
 }
 
 // Execute allows the RestorePlugin to perform arbitrary logic with the item being restored,
 // in this case, setting a custom annotation on the item being restored.
-func (p *RestoreDeploymentPlugin) Execute(input *velero.RestoreItemActionExecuteInput) (*velero.RestoreItemActionExecuteOutput, error) {
-	p.Log.Info("Radix Deployment RestorePlugin!")
+func (p *RestoreApplicationPlugin) Execute(input *velero.RestoreItemActionExecuteInput) (*velero.RestoreItemActionExecuteOutput, error) {
+	p.Log.Info("Radix Application RestorePlugin!")
 
 	metadata, err := meta.Accessor(input.Item)
 	if err != nil {
@@ -58,30 +57,22 @@ func (p *RestoreDeploymentPlugin) Execute(input *velero.RestoreItemActionExecute
 		annotations = make(map[string]string)
 	}
 
-	var rd radixv1.RadixDeployment
-	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(input.ItemFromBackup.UnstructuredContent(), &rd); err != nil {
-		return nil, errors.Wrap(err, "unable to convert unstructured item to Radix Deployment")
+	var ra radixv1.RadixApplication
+	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(input.ItemFromBackup.UnstructuredContent(), &ra); err != nil {
+		return nil, errors.Wrap(err, "unable to convert unstructured item to Radix Application")
 	}
 
-	restoredStatus, err := json.Marshal(rd.Status)
-	if err != nil {
-		return &velero.RestoreItemActionExecuteOutput{}, err
-	}
-
-	radixAppName := rd.Labels[kube.RadixAppLabel]
+	radixAppName := ra.Labels[kube.RadixAppLabel]
 	rrExists, err := p.kubeUtil.ExistsRadixRegistration(radixAppName)
 	if err != nil {
 		return &velero.RestoreItemActionExecuteOutput{}, err
 	}
 	if !rrExists {
-		p.Log.Infof("RadixRegistration %s does not exists - skip restoring RadixDeployment", radixAppName)
+		p.Log.Infof("RadixRegistration %s does not exists - skip restoring RadixApplication", radixAppName)
 		return &velero.RestoreItemActionExecuteOutput{
 			SkipRestore: true,
 		}, nil
 	}
-
-	annotations["equinor.com/velero-restored-status"] = string(restoredStatus)
-	metadata.SetAnnotations(annotations)
 
 	return velero.NewRestoreItemActionExecuteOutput(input.Item), nil
 }
