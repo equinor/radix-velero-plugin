@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	radixclient "github.com/equinor/radix-operator/pkg/client/clientset/versioned"
+	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/azure"
@@ -54,6 +55,9 @@ func getKubernetesClientFromConfig(config *restclient.Config) (kubernetes.Interf
 func (kubeUtil *Kube) ExistsRadixRegistration(name string) (bool, error) {
 	rr, err := kubeUtil.radixClient.RadixV1().RadixRegistrations().Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
+		if errors.IsNotFound(err) {
+			return false, nil
+		}
 		return false, err
 	}
 	return rr != nil && rr.Name != "", err
