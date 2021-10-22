@@ -17,7 +17,6 @@ limitations under the License.
 package main
 
 import (
-	kube "github.com/equinor/radix-operator/pkg/apis/kube"
 	radixv1 "github.com/equinor/radix-operator/pkg/apis/radix/v1"
 	"github.com/equinor/radix-velero-plugin/models"
 	"github.com/pkg/errors"
@@ -62,8 +61,7 @@ func (p *RestoreRadixApplicationPlugin) Execute(input *velero.RestoreItemActionE
 		return nil, errors.Wrap(err, "unable to convert unstructured item to Radix Application")
 	}
 
-	radixAppName := ra.Labels[kube.RadixAppLabel]
-	rrExists, err := p.kubeUtil.ExistsRadixRegistration(radixAppName)
+	rrExists, err := p.kubeUtil.ExistsRadixRegistration(ra.Name)
 	if err != nil {
 		return &velero.RestoreItemActionExecuteOutput{}, err
 	}
@@ -71,7 +69,7 @@ func (p *RestoreRadixApplicationPlugin) Execute(input *velero.RestoreItemActionE
 		return velero.NewRestoreItemActionExecuteOutput(input.Item), nil
 	}
 
-	p.Log.Infof("RadixRegistration %s does not exists - skip restoring RadixApplication", radixAppName)
+	p.Log.Infof("RadixRegistration %s does not exists - skip restoring RadixApplication", ra.Name)
 	return &velero.RestoreItemActionExecuteOutput{
 		SkipRestore: true,
 	}, nil
