@@ -17,21 +17,61 @@ limitations under the License.
 package main
 
 import (
+	"github.com/equinor/radix-velero-plugin/models"
 	"github.com/sirupsen/logrus"
 	veleroplugin "github.com/vmware-tanzu/velero/pkg/plugin/framework"
 )
 
 func main() {
+	logrus.SetLevel(logrus.DebugLevel)
+	kubeUtil, err := models.GetKubeUtil()
+	if err != nil {
+		logrus.Fatalf("cannot get Kubernetes or Radix client: %v", err)
+		return
+	}
 	veleroplugin.NewServer().
-		RegisterRestoreItemAction("equinor.com/restore-deployment-plugin", newDeploymentRestorePlugin).
-		RegisterRestoreItemAction("equinor.com/restore-job-plugin", newJobRestorePlugin).
+		RegisterRestoreItemAction("equinor.com/restore-application-plugin", func(logger logrus.FieldLogger) (interface{}, error) {
+			return &RestoreRadixApplicationPlugin{
+				Log:      logger,
+				kubeUtil: kubeUtil,
+			}, nil
+		}).
+		RegisterRestoreItemAction("equinor.com/restore-deployment-plugin", func(logger logrus.FieldLogger) (interface{}, error) {
+			return &RestoreRadixDeploymentPlugin{
+				Log:      logger,
+				kubeUtil: kubeUtil,
+			}, nil
+		}).
+		RegisterRestoreItemAction("equinor.com/restore-job-plugin", func(logger logrus.FieldLogger) (interface{}, error) {
+			return &RestoreRadixJobPlugin{
+				Log:      logger,
+				kubeUtil: kubeUtil,
+			}, nil
+		}).
+		RegisterRestoreItemAction("equinor.com/restore-alert-plugin", func(logger logrus.FieldLogger) (interface{}, error) {
+			return &RestoreAlertPlugin{
+				Log:      logger,
+				kubeUtil: kubeUtil,
+			}, nil
+		}).
+		RegisterRestoreItemAction("equinor.com/restore-environment-plugin", func(logger logrus.FieldLogger) (interface{}, error) {
+			return &RestoreRadixEnvironmentPlugin{
+				Log:      logger,
+				kubeUtil: kubeUtil,
+			}, nil
+		}).
+		RegisterRestoreItemAction("equinor.com/restore-secret-plugin", func(logger logrus.FieldLogger) (interface{}, error) {
+			return &RestoreRadixAppSecretPlugin{
+				Log:      logger,
+				kubeUtil: kubeUtil,
+			}, nil
+		}).
+		RegisterRestoreItemAction("equinor.com/restore-configmap-plugin", func(logger logrus.FieldLogger) (interface{}, error) {
+			return &RestoreRadixAppConfigMapPlugin{
+				Log:      logger,
+				kubeUtil: kubeUtil,
+			}, nil
+		}).
 		Serve()
-}
-
-func newDeploymentRestorePlugin(logger logrus.FieldLogger) (interface{}, error) {
-	return &RestoreDeploymentPlugin{Log: logger}, nil
-}
-
-func newJobRestorePlugin(logger logrus.FieldLogger) (interface{}, error) {
-	return &RestoreJobPlugin{Log: logger}, nil
+	logrus.Infoln("Initialized 'radix-velero-plugin'")
 }
