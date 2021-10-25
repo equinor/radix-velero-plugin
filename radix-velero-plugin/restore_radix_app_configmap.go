@@ -23,7 +23,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/vmware-tanzu/velero/pkg/plugin/velero"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
@@ -46,16 +45,6 @@ func (p *RestoreRadixAppConfigMapPlugin) AppliesTo() (velero.ResourceSelector, e
 // in this case, setting a custom annotation on the item being restored.
 func (p *RestoreRadixAppConfigMapPlugin) Execute(input *velero.RestoreItemActionExecuteInput) (*velero.RestoreItemActionExecuteOutput, error) {
 	p.Log.Info("Radix RadixAppConfigMap RestorePlugin!")
-
-	metadata, err := meta.Accessor(input.Item)
-	if err != nil {
-		return &velero.RestoreItemActionExecuteOutput{}, err
-	}
-
-	annotations := metadata.GetAnnotations()
-	if annotations == nil {
-		annotations = make(map[string]string)
-	}
 
 	var configMap corev1.ConfigMap
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(input.ItemFromBackup.UnstructuredContent(), &configMap); err != nil {

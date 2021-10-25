@@ -23,7 +23,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/vmware-tanzu/velero/pkg/plugin/velero"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
@@ -46,16 +45,6 @@ func (p *RestoreRadixAppSecretPlugin) AppliesTo() (velero.ResourceSelector, erro
 // in this case, setting a custom annotation on the item being restored.
 func (p *RestoreRadixAppSecretPlugin) Execute(input *velero.RestoreItemActionExecuteInput) (*velero.RestoreItemActionExecuteOutput, error) {
 	p.Log.Info("Radix RadixAppSecret RestorePlugin!")
-
-	metadata, err := meta.Accessor(input.Item)
-	if err != nil {
-		return &velero.RestoreItemActionExecuteOutput{}, err
-	}
-
-	annotations := metadata.GetAnnotations()
-	if annotations == nil {
-		annotations = make(map[string]string)
-	}
 
 	var secret corev1.Secret
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(input.ItemFromBackup.UnstructuredContent(), &secret); err != nil {

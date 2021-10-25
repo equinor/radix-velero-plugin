@@ -24,7 +24,7 @@ func GetKubeUtil() (*Kube, error) {
 	if err != nil {
 		return nil, err
 	}
-	kubeClient, err := getKubernetesClientFromConfig(config)
+	kubeClient, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		return nil, err
 	}
@@ -41,14 +41,6 @@ func getKubernetesClientConfig() (*restclient.Config, error) {
 		return nil, fmt.Errorf("cannot get in-cluster config: %v", err)
 	}
 	return config, nil
-}
-
-func getKubernetesClientFromConfig(config *restclient.Config) (kubernetes.Interface, error) {
-	client, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		return nil, fmt.Errorf("cannot create getClusterConfig k8s Radix client: %v", err)
-	}
-	return client, nil
 }
 
 //ExistsRadixRegistration Check if RadixRegistration exists by name

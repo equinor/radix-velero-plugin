@@ -23,7 +23,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/vmware-tanzu/velero/pkg/plugin/velero"
-	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
@@ -46,16 +45,6 @@ func (p *RestoreAlertPlugin) AppliesTo() (velero.ResourceSelector, error) {
 // in this case, setting a custom annotation on the item being restored.
 func (p *RestoreAlertPlugin) Execute(input *velero.RestoreItemActionExecuteInput) (*velero.RestoreItemActionExecuteOutput, error) {
 	p.Log.Info("Radix Alert RestorePlugin!")
-
-	metadata, err := meta.Accessor(input.Item)
-	if err != nil {
-		return &velero.RestoreItemActionExecuteOutput{}, err
-	}
-
-	annotations := metadata.GetAnnotations()
-	if annotations == nil {
-		annotations = make(map[string]string)
-	}
 
 	var ra radixv1.RadixAlert
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(input.ItemFromBackup.UnstructuredContent(), &ra); err != nil {
