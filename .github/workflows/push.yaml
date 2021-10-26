@@ -32,7 +32,7 @@ jobs:
       - name: Build Docker image master
         if: github.ref == 'refs/heads/master'
         run: |
-          docker build . -t radixdev.azurecr.io/${{ env.IMAGE }}:${{ steps.prep.outputs.BUILD_ID }} -t radixprod.azurecr.io/${{ env.IMAGE }}:master-latest
+          docker build . -t radixdev.azurecr.io/${{ env.IMAGE }}:${{ steps.prep.outputs.BUILD_ID }} -t radixdev.azurecr.io/${{ env.IMAGE }}:master-latest
       - name: Build Docker image release
         if: github.ref == 'refs/heads/release'
         run: |
