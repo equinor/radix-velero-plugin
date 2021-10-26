@@ -7,6 +7,8 @@ on:
 jobs:
   build:
     name: Build-push-radix-velero-plugin
+    env:
+      IMAGE: radix-velero-plugin
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go 1.16
@@ -16,28 +18,46 @@ jobs:
         id: go
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
+      - name: Generate build ID
+        id: prep
+        run: |
+          branch=${GITHUB_REF##*/}
+          sha=${GITHUB_SHA::8}
+          ts=$(date +%s)
+          echo "::set-output name=BUILD_ID::${branch}-${sha}-${ts}"
       - name: Build
         run: make local
       - name: Test
         run: make test
+      - name: Build Docker image master
+        if: github.ref == 'refs/heads/master'
+        run: |
+          docker build . -t radixdev.azurecr.io/${{ env.IMAGE }}:${{ steps.prep.outputs.BUILD_ID }} -t radixprod.azurecr.io/${{ env.IMAGE }}:master-latest
+      - name: Build Docker image release
+        if: github.ref == 'refs/heads/release'
+        run: |
+          docker build . -t radixprod.azurecr.io/${{ env.IMAGE }}:${{ steps.prep.outputs.BUILD_ID }} -t radixprod.azurecr.io/${{ env.IMAGE }}:release-latest
       - name: Login to radixdev
+        if: github.ref == 'refs/heads/master'
         uses: azure/docker-login@v1
         with:
           login-server: radixdev.azurecr.io
           username: ${{ secrets.DEV_REGISTRY_USERNAME }}
           password: ${{ secrets.DEV_REGISTRY_PASSWORD }}
-      - name: Push to radixdev
-        env:
-          ENVIRONMENT: dev
-        run: make container push
+      - name: push to radixdev
+        if: github.ref == 'refs/heads/master'
+        run: |
+          docker push radixdev.azurecr.io/${{ env.IMAGE }}:${{ steps.prep.outputs.BUILD_ID }}
+          docker push radixdev.azurecr.io/${{ env.IMAGE }}:master-latest
       - name: Login to radixprod
+        if: github.ref == 'refs/heads/release'
         uses: azure/docker-login@v1
         with:
           login-server: radixprod.azurecr.io
           username: ${{ secrets.PROD_REGISTRY_USERNAME }}
           password: ${{ secrets.PROD_REGISTRY_PASSWORD }}
-      - name: Push to radixprod
-        env:
-          ENVIRONMENT: prod
-        run: make container push
-      
+      - name: push to radixprod
+        if: github.ref == 'refs/heads/release'
+        run: |
+          docker push radixprod.azurecr.io/${{ env.IMAGE }}:${{ steps.prep.outputs.BUILD_ID }}
+          docker push radixprod.azurecr.io/${{ env.IMAGE }}:release-latest
