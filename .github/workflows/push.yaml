@@ -25,43 +25,28 @@ jobs:
           sha=${GITHUB_SHA::8}
           ts=$(date +%s)
           echo "::set-output name=BUILD_ID::${branch}-${sha}-${ts}"
+          echo "::set-output name=LATEST_TAG::${branch}-latest"
       - name: Build
         run: make local
       - name: Test
         run: make test
-      - name: Build Docker image master
-        if: github.ref == 'refs/heads/master'
+      - name: Build Docker image for radixdev ACR
         run: |
-          docker build . -t radixdev.azurecr.io/${{ env.IMAGE }}:${{ steps.prep.outputs.BUILD_ID }} -t radixdev.azurecr.io/${{ env.IMAGE }}:master-latest
-      - name: Build Docker image release
+          docker build . -t radixdev.azurecr.io/${{ env.IMAGE }}:${{ steps.prep.outputs.BUILD_ID }} -t radixdev.azurecr.io/${{ env.IMAGE }}:${{ steps.prep.outputs.LATEST_TAG }}
+      - name: Build Docker image for radixprod ACR
         if: github.ref == 'refs/heads/release'
         run: |
-          docker build . -t radixdev.azurecr.io/${{ env.IMAGE }}:${{ steps.prep.outputs.BUILD_ID }} -t radixdev.azurecr.io/${{ env.IMAGE }}:release-latest
-          docker build . -t radixprod.azurecr.io/${{ env.IMAGE }}:${{ steps.prep.outputs.BUILD_ID }} -t radixprod.azurecr.io/${{ env.IMAGE }}:release-latest
+          docker build . -t radixprod.azurecr.io/${{ env.IMAGE }}:${{ steps.prep.outputs.BUILD_ID }} -t radixprod.azurecr.io/${{ env.IMAGE }}:${{ steps.prep.outputs.LATEST_TAG }}
       - name: Login to radixdev for master
-        if: github.ref == 'refs/heads/master'
         uses: azure/docker-login@v1
         with:
           login-server: radixdev.azurecr.io
           username: ${{ secrets.DEV_REGISTRY_USERNAME }}
           password: ${{ secrets.DEV_REGISTRY_PASSWORD }}
       - name: push master to radixdev
-        if: github.ref == 'refs/heads/master'
         run: |
           docker push radixdev.azurecr.io/${{ env.IMAGE }}:${{ steps.prep.outputs.BUILD_ID }}
-          docker push radixdev.azurecr.io/${{ env.IMAGE }}:master-latest
-      - name: Login to radixdev for release
-        if: github.ref == 'refs/heads/release'
-        uses: azure/docker-login@v1
-        with:
-          login-server: radixdev.azurecr.io
-          username: ${{ secrets.DEV_REGISTRY_USERNAME }}
-          password: ${{ secrets.DEV_REGISTRY_PASSWORD }}
-      - name: push release to radixdev
-        if: github.ref == 'refs/heads/release'
-        run: |
-          docker push radixdev.azurecr.io/${{ env.IMAGE }}:${{ steps.prep.outputs.BUILD_ID }}
-          docker push radixdev.azurecr.io/${{ env.IMAGE }}:release-latest
+          docker push radixdev.azurecr.io/${{ env.IMAGE }}:${{ steps.prep.outputs.LATEST_TAG }}
       - name: Login to radixprod for release
         if: github.ref == 'refs/heads/release'
         uses: azure/docker-login@v1
@@ -73,4 +58,4 @@ jobs:
         if: github.ref == 'refs/heads/release'
         run: |
           docker push radixprod.azurecr.io/${{ env.IMAGE }}:${{ steps.prep.outputs.BUILD_ID }}
-          docker push radixprod.azurecr.io/${{ env.IMAGE }}:release-latest
+          docker push radixprod.azurecr.io/${{ env.IMAGE }}:${{ steps.prep.outputs.LATEST_TAG }}
