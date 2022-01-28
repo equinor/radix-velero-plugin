@@ -36,27 +36,40 @@ jobs:
       - name: Build Docker image release
         if: github.ref == 'refs/heads/release'
         run: |
+          docker build . -t radixdev.azurecr.io/${{ env.IMAGE }}:${{ steps.prep.outputs.BUILD_ID }} -t radixdev.azurecr.io/${{ env.IMAGE }}:release-latest
           docker build . -t radixprod.azurecr.io/${{ env.IMAGE }}:${{ steps.prep.outputs.BUILD_ID }} -t radixprod.azurecr.io/${{ env.IMAGE }}:release-latest
-      - name: Login to radixdev
+      - name: Login to radixdev for master
         if: github.ref == 'refs/heads/master'
         uses: azure/docker-login@v1
         with:
           login-server: radixdev.azurecr.io
           username: ${{ secrets.DEV_REGISTRY_USERNAME }}
           password: ${{ secrets.DEV_REGISTRY_PASSWORD }}
-      - name: push to radixdev
+      - name: push master to radixdev
         if: github.ref == 'refs/heads/master'
         run: |
           docker push radixdev.azurecr.io/${{ env.IMAGE }}:${{ steps.prep.outputs.BUILD_ID }}
           docker push radixdev.azurecr.io/${{ env.IMAGE }}:master-latest
-      - name: Login to radixprod
+      - name: Login to radixdev for release
+        if: github.ref == 'refs/heads/release'
+        uses: azure/docker-login@v1
+        with:
+          login-server: radixdev.azurecr.io
+          username: ${{ secrets.DEV_REGISTRY_USERNAME }}
+          password: ${{ secrets.DEV_REGISTRY_PASSWORD }}
+      - name: push release to radixdev
+        if: github.ref == 'refs/heads/release'
+        run: |
+          docker push radixdev.azurecr.io/${{ env.IMAGE }}:${{ steps.prep.outputs.BUILD_ID }}
+          docker push radixdev.azurecr.io/${{ env.IMAGE }}:release-latest
+      - name: Login to radixprod for release
         if: github.ref == 'refs/heads/release'
         uses: azure/docker-login@v1
         with:
           login-server: radixprod.azurecr.io
           username: ${{ secrets.PROD_REGISTRY_USERNAME }}
           password: ${{ secrets.PROD_REGISTRY_PASSWORD }}
-      - name: push to radixprod
+      - name: push release to radixprod
         if: github.ref == 'refs/heads/release'
         run: |
           docker push radixprod.azurecr.io/${{ env.IMAGE }}:${{ steps.prep.outputs.BUILD_ID }}
