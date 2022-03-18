@@ -19,7 +19,7 @@ COPY . .
 RUN CGO_ENABLED=0 go build -o /go/bin/radix-velero-plugin ./radix-velero-plugin
 
 
-FROM alpine:latest
+FROM alpine:3.15
 RUN mkdir /plugins
 COPY --from=build /go/bin/radix-velero-plugin /plugins/
 USER 65534
