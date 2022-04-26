@@ -9,6 +9,7 @@ permissions:
 jobs:
   build-and-test:
     name: Build & test
+    runs-on: ubuntu-20.04
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
