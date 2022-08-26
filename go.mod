@@ -3,6 +3,7 @@ module github.com/equinor/radix-velero-plugin
 go 1.18
 
 require (
+	cloud.google.com/go v0.100.2 // HACK: see import section in main.go
 	github.com/equinor/radix-operator v1.25.0
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.0
@@ -10,7 +11,6 @@ require (
 	k8s.io/api v0.23.9
 	k8s.io/apimachinery v0.23.9
 	k8s.io/client-go v0.23.9
-
 )
 
 require (
@@ -54,8 +54,8 @@ require (
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20220210224613-90d013bbcef8 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/genproto v0.0.0-20210831024726-fe130286e0e2 // indirect
-	google.golang.org/grpc v1.40.0 // indirect
+	google.golang.org/genproto v0.0.0-20211221195035-429b39de9b1c // indirect
+	google.golang.org/grpc v1.40.1 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
@@ -68,6 +68,3 @@ require (
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.1 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
-
-// TODO: describe why we do this
-replace cloud.google.com/go/compute v1.6.1 => cloud.google.com/go v0.100.2
