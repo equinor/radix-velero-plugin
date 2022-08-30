@@ -1,3 +1,5 @@
 .go/
 _output/
 vendor/
+.vscode/*.log
+.vscode/settings.json
