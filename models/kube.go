@@ -3,12 +3,12 @@ package models
 import (
 	"context"
 	"fmt"
+
 	radixclient "github.com/equinor/radix-operator/pkg/client/clientset/versioned"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/azure"
-	"k8s.io/client-go/rest"
 	restclient "k8s.io/client-go/rest"
 )
 
@@ -36,7 +36,7 @@ func GetKubeUtil() (*Kube, error) {
 }
 
 func getKubernetesClientConfig() (*restclient.Config, error) {
-	config, err := rest.InClusterConfig()
+	config, err := restclient.InClusterConfig()
 	if err != nil {
 		return nil, fmt.Errorf("cannot get in-cluster config: %v", err)
 	}
