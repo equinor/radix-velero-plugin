@@ -61,6 +61,12 @@ func main() {
 				kubeUtil: kubeUtil,
 			}, nil
 		}).
+		RegisterRestoreItemAction("equinor.com/restore-batch-plugin", func(logger logrus.FieldLogger) (interface{}, error) {
+			return &RestoreBatchPlugin{
+				Log:      logger,
+				kubeUtil: kubeUtil,
+			}, nil
+		}).
 		RegisterRestoreItemAction("equinor.com/restore-secret-plugin", func(logger logrus.FieldLogger) (interface{}, error) {
 			return &RestoreRadixAppSecretPlugin{
 				Log:      logger,
