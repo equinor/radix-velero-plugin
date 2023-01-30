@@ -46,12 +46,12 @@ func (p *RestoreBatchPlugin) AppliesTo() (velero.ResourceSelector, error) {
 func (p *RestoreBatchPlugin) Execute(input *velero.RestoreItemActionExecuteInput) (*velero.RestoreItemActionExecuteOutput, error) {
 	p.Log.Info("Radix Batch RestorePlugin!")
 
-	var ra radixv1.RadixBatch
-	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(input.ItemFromBackup.UnstructuredContent(), &ra); err != nil {
+	var rb radixv1.RadixBatch
+	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(input.ItemFromBackup.UnstructuredContent(), &rb); err != nil {
 		return nil, errors.Wrap(err, "unable to convert unstructured item to Radix Batch")
 	}
 
-	radixAppName := ra.Labels[kube.RadixAppLabel]
+	radixAppName := rb.Labels[kube.RadixAppLabel]
 	rrExists, err := p.kubeUtil.ExistsRadixRegistration(radixAppName)
 	if err != nil {
 		return &velero.RestoreItemActionExecuteOutput{}, err
