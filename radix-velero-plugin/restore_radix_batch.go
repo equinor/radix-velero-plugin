@@ -17,12 +17,15 @@ limitations under the License.
 package main
 
 import (
+	"encoding/json"
+
 	kube "github.com/equinor/radix-operator/pkg/apis/kube"
 	radixv1 "github.com/equinor/radix-operator/pkg/apis/radix/v1"
 	"github.com/equinor/radix-velero-plugin/models"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/vmware-tanzu/velero/pkg/plugin/velero"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
@@ -46,9 +49,24 @@ func (p *RestoreBatchPlugin) AppliesTo() (velero.ResourceSelector, error) {
 func (p *RestoreBatchPlugin) Execute(input *velero.RestoreItemActionExecuteInput) (*velero.RestoreItemActionExecuteOutput, error) {
 	p.Log.Info("Radix Batch RestorePlugin!")
 
+	metadata, err := meta.Accessor(input.Item)
+	if err != nil {
+		return &velero.RestoreItemActionExecuteOutput{}, err
+	}
+
+	annotations := metadata.GetAnnotations()
+	if annotations == nil {
+		annotations = make(map[string]string)
+	}
+
 	var rb radixv1.RadixBatch
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(input.ItemFromBackup.UnstructuredContent(), &rb); err != nil {
 		return nil, errors.Wrap(err, "unable to convert unstructured item to Radix Batch")
+	}
+
+	restoredStatus, err := json.Marshal(rb.Status)
+	if err != nil {
+		return &velero.RestoreItemActionExecuteOutput{}, err
 	}
 
 	radixAppName := rb.Labels[kube.RadixAppLabel]
@@ -56,12 +74,15 @@ func (p *RestoreBatchPlugin) Execute(input *velero.RestoreItemActionExecuteInput
 	if err != nil {
 		return &velero.RestoreItemActionExecuteOutput{}, err
 	}
-	if rrExists {
-		return velero.NewRestoreItemActionExecuteOutput(input.Item), nil
+
+	if !rrExists {
+		p.Log.Infof("RadixRegistration %s does not exists - skip restoring RadixBatch", radixAppName)
+		return &velero.RestoreItemActionExecuteOutput{
+			SkipRestore: true,
+		}, nil
 	}
 
-	p.Log.Infof("RadixRegistration %s does not exists - skip restoring RadixBatch", radixAppName)
-	return &velero.RestoreItemActionExecuteOutput{
-		SkipRestore: true,
-	}, nil
+	annotations["equinor.com/velero-restored-status"] = string(restoredStatus)
+	metadata.SetAnnotations(annotations)
+	return velero.NewRestoreItemActionExecuteOutput(input.Item), nil
 }
