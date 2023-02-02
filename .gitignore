@@ -3,3 +3,4 @@ _output/
 vendor/
 .vscode/*.log
 .vscode/settings.json
+.dccache

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.18.5-alpine3.16 as build
+FROM golang:1.19-alpine3.17 as build
 
 RUN apk update && \
     apk add git ca-certificates curl && \
@@ -33,7 +33,7 @@ RUN staticcheck ./...
 RUN CGO_ENABLED=0 GOOS=linux go build -o /go/bin/radix-velero-plugin ./radix-velero-plugin
 
 
-FROM alpine:latest
+FROM alpine:3.17
 
 RUN mkdir /plugins
 
