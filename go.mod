@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	cloud.google.com/go v0.100.2 // HACK: see import section in main.go
-	github.com/equinor/radix-operator v1.32.7
+	github.com/equinor/radix-operator v1.34.2
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.0
 	github.com/vmware-tanzu/velero v1.10.0
