@@ -17,7 +17,6 @@ limitations under the License.
 package main
 
 import (
-	_ "cloud.google.com/go" // HACK: go mod tidy fails with an "ambiguous import" error without this import
 	"github.com/equinor/radix-velero-plugin/models"
 	"github.com/sirupsen/logrus"
 	veleroplugin "github.com/vmware-tanzu/velero/pkg/plugin/framework"
