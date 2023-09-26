@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.20-alpine3.18 as build
+FROM golang:1.21-alpine3.18 as build
 
 RUN apk update && \
     apk add git ca-certificates curl && \
