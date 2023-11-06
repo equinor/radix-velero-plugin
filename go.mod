@@ -1,6 +1,6 @@
 module github.com/equinor/radix-velero-plugin
 
-go 1.19
+go 1.21
 
 require (
 	cloud.google.com/go v0.105.0 // HACK: see import section in main.go
