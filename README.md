@@ -27,3 +27,11 @@ What the velero CLI does is to add the plugin as an init container to the deploy
 adding it to the Helm release.
 
 Development clusters should use the **master-latest** tag, and plauground and production clusters should use the **release-latest** tag.
+
+## Contribution
+
+Want to contribute? Read our [contributing guidelines](./CONTRIBUTING.md)
+
+## Security
+
+This is how we handle [security issues](./SECURITY.md)
