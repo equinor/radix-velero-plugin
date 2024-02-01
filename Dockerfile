@@ -29,7 +29,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -o /go/bin/radix-velero-plugin ./radix-velero-plugin
 
 
-FROM alpine:3.18
+FROM alpine:3
 
 RUN mkdir /plugins
 
