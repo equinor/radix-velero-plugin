@@ -17,6 +17,9 @@ limitations under the License.
 package main
 
 import (
+	"os"
+	"strings"
+
 	"github.com/equinor/radix-velero-plugin/models"
 	"github.com/sirupsen/logrus"
 	veleroplugin "github.com/vmware-tanzu/velero/pkg/plugin/framework"
@@ -24,6 +27,10 @@ import (
 
 func main() {
 	logrus.SetLevel(logrus.DebugLevel)
+	if !envVarIsTrueOrYes(os.Getenv("PRETTY_PRINT")) {
+		logrus.SetFormatter(&logrus.JSONFormatter{})
+	}
+
 	kubeUtil, err := models.GetKubeUtil()
 	if err != nil {
 		logrus.Fatalf("cannot get Kubernetes or Radix client: %v", err)
@@ -80,4 +87,8 @@ func main() {
 		}).
 		Serve()
 	logrus.Infoln("Initialized 'radix-velero-plugin'")
+}
+
+func envVarIsTrueOrYes(envVar string) bool {
+	return strings.EqualFold(envVar, "true") || strings.EqualFold(envVar, "yes")
 }
