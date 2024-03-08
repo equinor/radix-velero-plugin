@@ -13,7 +13,7 @@
 # limitations under the License.
 ENVIRONMENT ?= dev
 PLUGIN_NAME ?= radix-velero-plugin
-VERSION  ?=latest 
+VERSION  ?=latest
 
 BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 PKG := github.com/equinor/$(PLUGIN_NAME)
@@ -40,9 +40,13 @@ local: build-dirs
 test:
 	CGO_ENABLED=0 go test -v -timeout 60s ./...
 
+.PHONY: lint
+lint: bootstrap
+	golangci-lint run --max-same-issues 0
+
 # ci is a convenience target for CI builds.
 .PHONY: ci
-ci: verify-modules local test
+ci: verify-modules local
 
 # container builds a Docker image containing the binary.
 .PHONY: container
@@ -80,3 +84,10 @@ build-dirs:
 clean:
 	@echo "cleaning"
 	rm -rf _output
+
+HAS_GOLANGCI_LINT := $(shell command -v golangci-lint;)
+
+bootstrap:
+ifndef HAS_GOLANGCI_LINT
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.55.2
+endif

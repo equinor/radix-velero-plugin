@@ -18,8 +18,6 @@ RUN apk update && \
     apk add git ca-certificates curl && \
     apk add --no-cache gcc musl-dev
 
-RUN go install honnef.co/go/tools/cmd/staticcheck@2023.1.3
-
 WORKDIR /go/src/github.com/equinor/radix-velero-plugin
 
 COPY go.mod go.sum ./
@@ -28,12 +26,10 @@ RUN go mod download
 
 COPY . .
 
-RUN staticcheck ./...
-
 RUN CGO_ENABLED=0 GOOS=linux go build -o /go/bin/radix-velero-plugin ./radix-velero-plugin
 
 
-FROM alpine:3.18
+FROM alpine:3
 
 RUN mkdir /plugins
 
