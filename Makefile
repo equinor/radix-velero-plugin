@@ -57,10 +57,6 @@ container:
 .PHONY: push
 push:
 	@docker push $(IMAGE):${BRANCH}-$(VERSION)
-# ifeq ($(TAG_LATEST), true)
-# 	docker tag $(IMAGE):$(VERSION) $(IMAGE):latest
-# 	docker push $(IMAGE):latest
-# endif
 
 # modules updates Go module files
 .PHONY: modules
@@ -89,5 +85,5 @@ HAS_GOLANGCI_LINT := $(shell command -v golangci-lint;)
 
 bootstrap:
 ifndef HAS_GOLANGCI_LINT
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.55.2
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.58.2
 endif
