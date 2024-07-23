@@ -10,6 +10,5 @@ linters:
     - staticcheck
     - unused
 
-linters-settings:
-  issues:
-    max-same-issues: 0
+issues:
+  max-same-issues: 0
