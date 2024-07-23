@@ -12,29 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.21-alpine3.18 as build
-
-RUN apk update && \
-    apk add git ca-certificates curl && \
-    apk add --no-cache gcc musl-dev
-
-WORKDIR /go/src/github.com/equinor/radix-velero-plugin
-
+FROM docker.io/golang:1.22-alpine3.20 as builder
+ENV CGO_ENABLED=0 \
+    GOOS=linux
+WORKDIR /src
 COPY go.mod go.sum ./
-
 RUN go mod download
-
 COPY . .
+RUN go build -ldflags="-s -w" -o /build/radix-velero-plugin ./radix-velero-plugin
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /go/bin/radix-velero-plugin ./radix-velero-plugin
-
-
-FROM alpine:3
+FROM docker.io/alpine:3
 
 RUN mkdir /plugins
 
-COPY --from=build /go/bin/radix-velero-plugin /plugins/
+COPY --from=builder /build/radix-velero-plugin /plugins/
 
 USER 65534
 
 ENTRYPOINT ["/bin/sh", "-c", "cp /plugins/* /target/."]
+
