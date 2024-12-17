@@ -12,22 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM docker.io/golang:1.22-alpine3.20 AS builder
+FROM --platform=$BUILDPLATFORM docker.io/golang:1.22-alpine3.20 AS builder
+
+ARG TARGETARCH
 ENV CGO_ENABLED=0 \
-    GOOS=linux
+    GOOS=linux \
+    GOARCH=${TARGETARCH}
+
 WORKDIR /src
+
+# Install project dependencies
 COPY go.mod go.sum ./
 RUN go mod download
+
+# Copy and build project code
 COPY . .
 RUN go build -ldflags="-s -w" -o /build/radix-velero-plugin ./radix-velero-plugin
 
+# Final stage
 FROM docker.io/alpine:3
-
-RUN mkdir /plugins
-
 COPY --from=builder /build/radix-velero-plugin /plugins/
-
 USER 65534
-
 ENTRYPOINT ["/bin/sh", "-c", "cp /plugins/* /target/."]
 
