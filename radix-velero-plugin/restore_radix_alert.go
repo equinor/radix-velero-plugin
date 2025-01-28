@@ -17,10 +17,11 @@ limitations under the License.
 package main
 
 import (
+	"fmt"
+
 	kube "github.com/equinor/radix-operator/pkg/apis/kube"
 	radixv1 "github.com/equinor/radix-operator/pkg/apis/radix/v1"
 	"github.com/equinor/radix-velero-plugin/models"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/vmware-tanzu/velero/pkg/plugin/velero"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -48,7 +49,7 @@ func (p *RestoreAlertPlugin) Execute(input *velero.RestoreItemActionExecuteInput
 
 	var ra radixv1.RadixAlert
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(input.ItemFromBackup.UnstructuredContent(), &ra); err != nil {
-		return nil, errors.Wrap(err, "unable to convert unstructured item to Radix Alert")
+		return nil, fmt.Errorf("unable to convert unstructured item to Radix Alert: %w", err)
 	}
 
 	radixAppName := ra.Labels[kube.RadixAppLabel]

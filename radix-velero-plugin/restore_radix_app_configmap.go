@@ -17,9 +17,10 @@ limitations under the License.
 package main
 
 import (
+	"fmt"
+
 	kube "github.com/equinor/radix-operator/pkg/apis/kube"
 	"github.com/equinor/radix-velero-plugin/models"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/vmware-tanzu/velero/pkg/plugin/velero"
 	corev1 "k8s.io/api/core/v1"
@@ -48,7 +49,7 @@ func (p *RestoreRadixAppConfigMapPlugin) Execute(input *velero.RestoreItemAction
 
 	var configMap corev1.ConfigMap
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(input.ItemFromBackup.UnstructuredContent(), &configMap); err != nil {
-		return nil, errors.Wrap(err, "unable to convert unstructured item to ConfigMap for RadixApp")
+		return nil, fmt.Errorf("unable to convert unstructured item to ConfigMap for RadixApp: %w", err)
 	}
 
 	radixAppName := configMap.Labels[kube.RadixAppLabel]
