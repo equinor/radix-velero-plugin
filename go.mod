@@ -1,13 +1,13 @@
 module github.com/equinor/radix-velero-plugin
 
-go 1.22.2
+go 1.22.8
 
-toolchain go1.22.4
+toolchain go1.23.0
 
 require (
 	github.com/equinor/radix-operator v1.68.4
 	github.com/sirupsen/logrus v1.9.3
-	github.com/vmware-tanzu/velero v1.15.2
+	github.com/vmware-tanzu/velero v1.14.1
 	k8s.io/api v0.31.0
 	k8s.io/apimachinery v0.31.0
 	k8s.io/client-go v0.31.0
@@ -47,7 +47,6 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kedacore/keda/v2 v2.15.1 // indirect
 	github.com/klauspost/compress v1.17.9 // indirect
-	github.com/kubernetes-csi/external-snapshotter/client/v7 v7.0.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
