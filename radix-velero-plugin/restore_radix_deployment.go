@@ -18,10 +18,11 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
+
 	kube "github.com/equinor/radix-operator/pkg/apis/kube"
 	radixv1 "github.com/equinor/radix-operator/pkg/apis/radix/v1"
 	"github.com/equinor/radix-velero-plugin/models"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/vmware-tanzu/velero/pkg/plugin/velero"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -60,7 +61,7 @@ func (p *RestoreRadixDeploymentPlugin) Execute(input *velero.RestoreItemActionEx
 
 	var rd radixv1.RadixDeployment
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(input.ItemFromBackup.UnstructuredContent(), &rd); err != nil {
-		return nil, errors.Wrap(err, "unable to convert unstructured item to Radix Deployment")
+		return nil, fmt.Errorf("unable to convert unstructured item to Radix Deployment: %w", err)
 	}
 
 	restoredStatus, err := json.Marshal(rd.Status)

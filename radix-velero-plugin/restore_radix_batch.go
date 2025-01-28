@@ -18,11 +18,11 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 
 	kube "github.com/equinor/radix-operator/pkg/apis/kube"
 	radixv1 "github.com/equinor/radix-operator/pkg/apis/radix/v1"
 	"github.com/equinor/radix-velero-plugin/models"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/vmware-tanzu/velero/pkg/plugin/velero"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -61,7 +61,7 @@ func (p *RestoreBatchPlugin) Execute(input *velero.RestoreItemActionExecuteInput
 
 	var rb radixv1.RadixBatch
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(input.ItemFromBackup.UnstructuredContent(), &rb); err != nil {
-		return nil, errors.Wrap(err, "unable to convert unstructured item to Radix Batch")
+		return nil, fmt.Errorf("unable to convert unstructured item to Radix Batch: %w", err)
 	}
 
 	restoredStatus, err := json.Marshal(rb.Status)

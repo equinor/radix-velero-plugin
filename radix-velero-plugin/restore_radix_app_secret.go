@@ -17,9 +17,10 @@ limitations under the License.
 package main
 
 import (
+	"fmt"
+
 	kube "github.com/equinor/radix-operator/pkg/apis/kube"
 	"github.com/equinor/radix-velero-plugin/models"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/vmware-tanzu/velero/pkg/plugin/velero"
 	corev1 "k8s.io/api/core/v1"
@@ -48,7 +49,7 @@ func (p *RestoreRadixAppSecretPlugin) Execute(input *velero.RestoreItemActionExe
 
 	var secret corev1.Secret
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(input.ItemFromBackup.UnstructuredContent(), &secret); err != nil {
-		return nil, errors.Wrap(err, "unable to convert unstructured item to Secret for RadixApp")
+		return nil, fmt.Errorf("unable to convert unstructured item to Secret for RadixApp: %w", err)
 	}
 
 	radixAppName := secret.Labels[kube.RadixAppLabel]
