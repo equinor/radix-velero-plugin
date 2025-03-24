@@ -2,12 +2,12 @@ module github.com/equinor/radix-velero-plugin
 
 go 1.23.0
 
-toolchain go1.24.1
+toolchain go1.23.7
 
 require (
 	github.com/equinor/radix-operator v1.75.1
 	github.com/sirupsen/logrus v1.9.3
-	github.com/vmware-tanzu/velero v1.15.2
+	github.com/vmware-tanzu/velero v1.14.1
 	k8s.io/api v0.31.0
 	k8s.io/apimachinery v0.31.0
 	k8s.io/client-go v0.31.0
