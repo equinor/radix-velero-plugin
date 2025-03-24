@@ -1,13 +1,13 @@
 module github.com/equinor/radix-velero-plugin
 
-go 1.22.8
+go 1.23.0
 
-toolchain go1.23.0
+toolchain go1.24.1
 
 require (
-	github.com/equinor/radix-operator v1.68.4
+	github.com/equinor/radix-operator v1.75.1
 	github.com/sirupsen/logrus v1.9.3
-	github.com/vmware-tanzu/velero v1.14.1
+	github.com/vmware-tanzu/velero v1.15.2
 	k8s.io/api v0.31.0
 	k8s.io/apimachinery v0.31.0
 	k8s.io/client-go v0.31.0
@@ -19,7 +19,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/emicklei/go-restful/v3 v3.12.1 // indirect
-	github.com/equinor/radix-common v1.9.4 // indirect
+	github.com/equinor/radix-common v1.10.0 // indirect
 	github.com/evanphx/json-patch/v5 v5.9.0 // indirect
 	github.com/expr-lang/expr v1.16.9 // indirect
 	github.com/fatih/color v1.16.0 // indirect
