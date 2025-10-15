@@ -1,5 +1,8 @@
 # Radix Velero Plugin
 
+> [!IMPORTANT]  
+> **Update , October 2025:** This repository is no longer maintained because Velero now has built-in support for restoring resource status.
+
 This plugin is intended to assist velero in backup/restores, so that we are able to recover the state as it were in the original cluster. Information from this plugin ends up as annotations on the restored object. Currently the supported annotations are:
 
 - equinor.com/velero-restored-status
